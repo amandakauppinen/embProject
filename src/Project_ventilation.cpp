@@ -25,6 +25,8 @@
 #include "PressureSens.h"
 #include "PIcontroller.h"
 #include "DigitalIoPin.h"
+#include "ModbusMaster.h"
+#include "ModbusRegister.h"
 
 //defines:
 #define SYSTICKRATE_HZ 1000
@@ -137,7 +139,7 @@ int main(void) {
 			//
 			//}
 			//Modbus setFrequency(freq)
-			//UI setFrequency(freq)
+			//UI setFrequency(freq) //not necessary
 			//printStatus(freq, pressure) maybe target?
 			printf("ModbusUpdate \n");
 
