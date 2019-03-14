@@ -10,13 +10,20 @@ public:
 	UI(LiquidCrystal *screen, DigitalIoPin *b1, DigitalIoPin *b2, DigitalIoPin *b3);
 	void clearDisplay();
 	void buttonStatus();
-	void displayFormat (bool mode);
-	void setFan(int fanSpeed);
-	void setPressure(int pressure);
-	void valueUpdate (bool mode, int value);
+
+	//void setFan(int newSpeed);
+	void setPressure(int newPressure);
+	void inline setCurrentPressure (int pa) {
+		currentPressure = pa;
+	}
+
 	void errorMessage();
+
 	int getFan();
 	int getPressure();
+	bool inline Mode() {
+		return manualMode;
+	}
 	virtual ~UI();
 private:
 	LiquidCrystal *screen;
@@ -25,8 +32,11 @@ private:
 	DigitalIoPin *b3;
 	
 	//true = manual, false = auto
-	bool modeSelect = true, error = false;
-	int pressure = 0, fanSpeed = 0;
+	bool manualMode = true;
+	int pressure = 90, fanSpeed = 10;
+	int currentPressure;
+
+	void displayFormat ();
 };
 
 #endif
