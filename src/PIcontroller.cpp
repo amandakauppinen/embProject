@@ -7,8 +7,10 @@
 
 #include "PIcontroller.h"
 
-#define maxValue 100
-#define minValue 0
+#define maxValue 20000
+#define minValue 1300
+#define timeOut_s 20
+#define timeOutRange 0.5
 
 PIcontroller::PIcontroller(float KP, float KI, float k, int SysTickRate, int SysTickDivider) {
 	Ki = KI;
@@ -38,20 +40,26 @@ void PIcontroller::setReading(float CurrentPressure){
 	else if (getUnlimitedSpeed() < minValue){
 		i =((minValue/K)-(p*(-Kp))) / (-Ki);
 	}
+
+	if(deltaPressure < timeOutRange && deltaPressure > -timeOutRange){
+		timeOutCounter = 0;
+	}
 }
 
 void PIcontroller::setTarget(float TargetPressure){
 	targetPressure = TargetPressure;
+	timeOutCounter = 0;
 }
 
 void PIcontroller::sysTick(){
-	static volatile int counter = 0;
-	if (counter >= sysTickDivider){
+	timeOutCounter++;
+	static volatile int dividerCounter = 0;
+	if (dividerCounter >= sysTickDivider){
 		i += deltaPressure;
-		counter = 0;
+		dividerCounter = 0;
 	}
 	else{
-		counter++;
+		dividerCounter++;
 	}
 
 }
@@ -74,3 +82,9 @@ int PIcontroller::getSpeed(){
 	return (int)speed;
 }
 
+bool PIcontroller::getTimeOut(){
+	if (timeOutCounter >= (sysTickRate * timeOut_s)){
+		return true;
+	}
+	return false;
+}

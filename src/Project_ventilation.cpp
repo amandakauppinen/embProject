@@ -17,16 +17,22 @@
 #endif
 #endif
 
+//basic
 #include <cr_section_macros.h>
-#include <ritimer_15xx.h>
-#include "LiquidCrystal.h"
 #include <atomic>
-#include "UI.h"
+//PressureSensor:
 #include "PressureSens.h"
+//PI controller:
 #include "PIcontroller.h"
+//UI:
+#include "UI.h"
 #include "DigitalIoPin.h"
+#include <ritimer_15xx.h> //do we need this here?
+#include "LiquidCrystal.h"
+//Modbus:
 #include "ModbusMaster.h"
 #include "ModbusRegister.h"
+#include "LpcUart.h"
 
 //defines:
 #define SYSTICKRATE_HZ 1000
@@ -35,7 +41,9 @@
 
 //global variables:
 static volatile std::atomic_int sleepCounter;
+static volatile uint32_t millisCounter;
 static volatile std::atomic_int ModbusDelayCounter;
+static PIcontroller* PIC;
 
 //SysTickHandler in C-code:
 #ifdef __cplusplus
@@ -49,8 +57,8 @@ extern "C" {
 	{
 		sleepCounter--; //decrement counter for Sleep-function
 		ModbusDelayCounter ++; //increment counter for delay between Modbus updates
-		//call PIcontroller-Tick
-		//Stuff for millis()
+		if (PIC != NULL) PIC->sysTick();
+		millisCounter++;
 	}
 
 #ifdef __cplusplus
@@ -63,6 +71,36 @@ void Sleep(uint ms){
 	while(sleepCounter < threshold){
 		__WFI();
 	}
+}
+
+uint32_t millis() {
+	return millisCounter;
+}
+
+bool setFrequency(ModbusMaster& node, uint16_t freq){
+	int result;
+	int ctr;
+	bool atSetpoint;
+	const int delay = 500;
+
+	ModbusRegister Frequency(&node, 1); // reference 1
+	ModbusRegister StatusWord(&node, 3);
+	//necessary in this function?
+	Frequency = freq; // set motor frequency
+
+	// wait until we reach set point or timeout occurs ? former delay?
+	ctr = 0;
+	atSetpoint = false;
+	do {
+		// read status word
+		result = StatusWord;
+		// check if we are at setpoint
+		if (result >= 0 && (result & 0x0100)) atSetpoint = true;
+		ctr++;
+		Sleep(delay);
+	} while(ctr < 20 && !atSetpoint);
+
+	return atSetpoint;
 }
 
 
@@ -84,10 +122,29 @@ int main(void) {
 	printf("Started\n");
 
 	//Modbus:
+	LpcPinMap none = {-1, -1}; // unused pin has negative values in it
+	LpcPinMap txpin = { 0, 18 }; // transmit pin that goes to debugger's UART->USB converter
+	LpcPinMap rxpin = { 0, 13 }; // receive pin that goes to debugger's UART->USB converter
+	LpcUartConfig cfg = { LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false, txpin, rxpin, none, none };
+	LpcUart dbgu(cfg);
+
+	ModbusMaster node(2); // Create Modbus object that connects to slave id 2
+	node.begin(9600);	//Start Uart
+	ModbusRegister ControlWord(&node, 0);
+	ModbusRegister outputFreq(&node,102);
+	ModbusRegister StatusWord(&node, 3);
+
+	ControlWord = 0x0406; // prepare for starting
+	//delay needed?
+	ControlWord = 0x047F; // set drive to start mode
 
 	//PIcontroller:
+	PIcontroller picontroller(1, 0.3, 40, 1000, 10); //1, 0.3, 40, 1000, 10
+	PIC = &picontroller;
+	picontroller.setTarget(0);
 
 	//PressureSensor:
+	PressureSens PS(1000);
 
 	//UI:
 	Chip_RIT_Init(LPC_RITIMER); //setup RI-Timer for milliseconds delay function for LCD
@@ -117,31 +174,34 @@ int main(void) {
 //loop:
 	while (1) {
 		//menu.buttonStatus(); //check buttons and update UI //remove while(1) from UI.cpp and use this while(1)
-		//pressure = PressureSensor read
+		pressure = PS.getCompPressure();
 		//if(UI automaticMode){
-		//	PIcontroller setTarget(UIgetTarget)
-		//	PIcontroller setReading(pressure)
+			picontroller.setTarget(0);//	PIcontroller setTarget(UIgetTarget)
+			picontroller.setReading(pressure); //PIcontroller setReading(pressure)
 		//}
 		//else{
-		//	PIcontroller setTarget(0) //if we switch back to automatic mode the motor starts from 0
-		//	PIcontroller setReading(0)
+			picontroller.setTarget(0); //	PIcontroller setTarget(0) //if we switch back to automatic mode the motor starts from 0
+			picontroller.setReading(0);//	PIcontroller setReading(0)
 		//}
 		//UI setPressure(pressure)
 		if (ModbusDelayCounter >= ModbusDelayThreshold){
 			ModbusDelayCounter = 0; //reset counter;
 			//if(UI automaticMode){
-			//	if(PIcontroller TimeOut){
+				if(picontroller.getTimeOut()){
 			//		UI printErrorMessage
-			//	}
-			//	freq = PIcontroller getOutput
+					printf("PIcontroller Error: not able to reach pressure! \n");
+				}
+				freq = picontroller.getSpeed();
 			//}
 			//else{
 			//
 			//}
-			//Modbus setFrequency(freq)
+			if(!setFrequency(node,freq)){ //Modbus setFrequency(freq)
+				printf("Modbus Error: failed to write frequency \n");
+			}
 			//UI setFrequency(freq) //not necessary
-			//printStatus(freq, pressure) maybe target?
-			printf("ModbusUpdate \n");
+
+			printf("pressure= %f.2 freq= %d \n", pressure, freq); //maybe target as well?
 
 		}
 		Sleep(MAININTERVALL_MS);
