@@ -29,6 +29,7 @@
 //defines:
 #define SYSTICKRATE_HZ 1000
 #define MODBUSINTERVALL_MS 1000
+#define MAININTERVALL_MS 30 //needed because the sensor needs some time to get a new value
 
 //global variables:
 static volatile std::atomic_int sleepCounter;
@@ -54,9 +55,9 @@ extern "C" {
 }
 #endif
 
-void sleep(uint ms){
+void Sleep(uint ms){
 	sleepCounter = 0;
-	uint threshold = (ms * SYSTICKRATE_HZ) /1000;
+	int threshold = (ms * SYSTICKRATE_HZ) /1000;
 	while(sleepCounter < threshold){
 		__WFI();
 	}
@@ -77,6 +78,8 @@ int main(void) {
 	SysTick_Config(sysTickClockRate / SYSTICKRATE_HZ);
 
 	//retarget printf:
+	Chip_SWM_MovablePortPinAssign(SWM_SWO_O, 1, 2);
+	printf("Started\n");
 
 	//Modbus:
 
@@ -111,12 +114,35 @@ int main(void) {
 
 //loop:
 	while (1) {
-		menu.buttonStatus(); //check buttons and update UI
-
+		//menu.buttonStatus(); //check buttons and update UI //remove while(1) from UI.cpp and use this while(1)
+		//pressure = PressureSensor read
+		//if(UI automaticMode){
+		//	PIcontroller setTarget(UIgetTarget)
+		//	PIcontroller setReading(pressure)
+		//}
+		//else{
+		//	PIcontroller setTarget(0) //if we switch back to automatic mode the motor starts from 0
+		//	PIcontroller setReading(0)
+		//}
+		//UI setPressure(pressure)
 		if (ModbusDelayCounter >= ModbusDelayThreshold){
 			ModbusDelayCounter = 0; //reset counter;
+			//if(UI automaticMode){
+			//	if(PIcontroller TimeOut){
+			//		UI printErrorMessage
+			//	}
+			//	freq = PIcontroller getOutput
+			//}
+			//else{
+			//
+			//}
+			//Modbus setFrequency(freq)
+			//UI setFrequency(freq)
+			//printStatus(freq, pressure) maybe target?
 			printf("ModbusUpdate \n");
+
 		}
+		Sleep(MAININTERVALL_MS);
 	}
 
 

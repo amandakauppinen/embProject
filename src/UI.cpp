@@ -26,7 +26,7 @@ void UI::buttonStatus() {
 	//this might be better going into the main
 	while(1) {
 		if (b1->read()) {
-			//Sleep(500);
+			Sleep(500);
 			//if the device is in manual mode
 			if (modeSelect == true) {
 				if (fanSpeed <= 95) {
@@ -53,7 +53,7 @@ void UI::buttonStatus() {
 					}
 		}
 		else if (b2->read()) {
-			//Sleep(500);
+			Sleep(500);
 			if (modeSelect == true) {
 				if (fanSpeed >= 5) {
 					fanSpeed -= 5;
@@ -76,7 +76,7 @@ void UI::buttonStatus() {
 					}
 		}
 		else if (b3->read()) {
-			//Sleep(500);
+			Sleep(500);
 			//I can make this look nicer later
 			//if device is in manual mode, change to auto
 			if (modeSelect == true) {
