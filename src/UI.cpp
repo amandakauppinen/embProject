@@ -123,7 +123,7 @@ void UI::displayFormat () {
 		buffer['\0'];
 		//line 1
 		screen->setCursor(0,1);
-		cx = snprintf(buffer, 16, "Set pr: %d", fanSpeed);
+		cx = snprintf(buffer, 16, "Set pr: %d", pressure);
 		screen->print(buffer);
 		screen->setCursor(12,1);
 		screen->print("pa");
