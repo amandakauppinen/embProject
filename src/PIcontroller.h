@@ -7,6 +7,7 @@
 
 #ifndef PICONTROLLER_H_
 #define PICONTROLLER_H_
+#include <sys/types.h>
 
 class PIcontroller {
 public:
@@ -16,6 +17,7 @@ public:
 	void setTarget(float TargetPressure);
 	int getSpeed();
 	void sysTick();
+	bool getTimeOut();
 private:
 	float getUnlimitedSpeed();
 	int sysTickRate;
@@ -29,6 +31,7 @@ private:
 	float targetPressure;
 	float deltaPressure;
 	float speed;
+	volatile uint32_t timeOutCounter;
 };
 
 #endif /* PICONTROLLER_H_ */
