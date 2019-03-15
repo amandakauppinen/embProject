@@ -79,7 +79,7 @@ bool setFrequency(ModbusMaster& node, uint16_t freq){
 	int result;
 	int ctr;
 	bool atSetpoint;
-	const int delay = 500;
+	const int delay = 100;
 
 	ModbusRegister Frequency(&node, 1); // reference 1
 	ModbusRegister StatusWord(&node, 3);
@@ -137,7 +137,7 @@ int main(void) {
 	ControlWord = 0x047F; // set drive to start mode
 
 	//PIcontroller:
-	PIcontroller picontroller(1, 0.3, 40, 1000, 100); //1, 0.3, 40, 1000, 10
+	PIcontroller picontroller(1, 0.2, 10, 1000, 100); //1, 0.3, 40, 1000, 10
 	PIC = &picontroller;
 	picontroller.setTarget(0);
 
@@ -169,7 +169,7 @@ int main(void) {
 	setFrequency(node, 5000);
 	menu.write("Initializing.   ");
 	Sleep(1000);
-	setFrequency(node, 6000);
+	setFrequency(node, 10000);
 	menu.write("Initializing..  ");
 	Sleep(1000);
 	setFrequency(node, 5000);

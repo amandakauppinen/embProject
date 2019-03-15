@@ -7,9 +7,10 @@
 
 #include "PIcontroller.h"
 
-#define maxValue 100
-#define minValue 0
-#define timeOut_s 1 //20
+#define maxValue 20000
+#define minValue 1300
+#define timeOut_s 60 //20
+#define timeOutRange 1
 
 PIcontroller::PIcontroller(float KP, float KI, float k, int SysTickRate, int SysTickDivider) {
 	Ki = KI;
@@ -40,14 +41,16 @@ void PIcontroller::setReading(float CurrentPressure){
 		i =((minValue/K)-(p*(-Kp))) / (-Ki);
 	}
 
-	if(deltaPressure < 0.5 && deltaPressure > -0.5){
+	if(deltaPressure < timeOutRange && deltaPressure > -timeOutRange){
 		timeOutCounter = 0;
 	}
 }
 
 void PIcontroller::setTarget(float TargetPressure){
+	if (targetPressure != TargetPressure){
+		timeOutCounter = 0;
+	}
 	targetPressure = TargetPressure;
-	timeOutCounter = 0;
 }
 
 void PIcontroller::sysTick(){
