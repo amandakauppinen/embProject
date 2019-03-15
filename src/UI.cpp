@@ -93,7 +93,7 @@ void UI::displayFormat () {
 	if (manualMode == true) {
 		//line 0
 		screen->setCursor(0,0);
-		snprintf ( buffer, 16, "Pressure: %d  ", currentPressure);
+		snprintf ( buffer, 16, "Pressure: %d   ", currentPressure);
 		screen->print(buffer);
 		screen->setCursor(14,0);
 		screen->print("pa");
@@ -111,12 +111,14 @@ void UI::displayFormat () {
 	//change device to auto layout
 	else {
 		//line 0
-		screen->setCursor(0,0);
-		snprintf(buffer, 16, "Pressure: %d  ", currentPressure);
-		screen->print(buffer);
-		screen->setCursor(14,0);
-		screen->print("pa");
-		buffer[0] = {'\0'};
+		if(!error){
+			screen->setCursor(0,0);
+			snprintf(buffer, 16, "Pressure: %d  ", currentPressure);
+			screen->print(buffer);
+			screen->setCursor(14,0);
+			screen->print("pa");
+			buffer[0] = {'\0'};
+		}
 		//line 1
 		screen->setCursor(0,1);
 		snprintf(buffer, 16, "Set pr: %d  ", pressure);
@@ -155,7 +157,7 @@ int UI::getPressure() {
 void UI::errorMessage() {
 	error = true;
 	screen->setCursor(0,0);
-	screen->print("Error code: 123");
+	screen->print("Error code: 1   ");
 }
 
 void UI::resetError() {

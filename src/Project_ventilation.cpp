@@ -175,6 +175,7 @@ int main(void) {
 	setFrequency(node, 5000);
 	menu.write("Initializing... ");
 	Sleep(1000);
+	menu.clearDisplay();
 
 	//main-function variables:
 	int freq = 0, status;
@@ -199,13 +200,12 @@ int main(void) {
 			picontroller.setReading(0);					//PIcontroller not in use
 			freq = menu.getFan();						//Set speed to be sent to the fan to be
 														//the UI readings
-			menu.setCurrentPressure((int)pressure);
 		}
 		else {											//if the system is in automatic mode
 			picontroller.setTarget(menu.getPressure());	//if we switch back to automatic mode the motor starts from 0
 			picontroller.setReading(pressure);			//PIcontroller setReading(0)
 			freq = picontroller.getSpeed();				//calculate the speed from the PIcontroller
-			menu.setCurrentPressure((int)pressure);
+
 		}
 		/*-------------------------------------------------------------------------*/
 		/*------------------------Modbus communication-----------------------------*/
@@ -215,6 +215,7 @@ int main(void) {
 			Board_LED_Set(0, true);
 			Board_LED_Set(1, false);
 			ModbusDelayCounter = 0; 					//reset counter;
+			menu.setCurrentPressure((int)(pressure+0.5));
 			if(!menu.Mode()) {							//if the system is running in automatic mode
 				if(picontroller.getTimeOut()){
 					menu.errorMessage();

@@ -35,7 +35,7 @@ private:
 
 	//true = manual, false = auto
 	bool manualMode = true;
-	int pressure = 20, fanSpeed = 25;
+	int pressure = 30, fanSpeed = 25;
 	int currentPressure;
 	bool error = false;
 	void displayFormat ();
