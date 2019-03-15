@@ -18,6 +18,7 @@ public:
 	void write(std::string s);
 
 	void errorMessage();
+	void resetError();
 
 	int getFan();
 	int getPressure();
@@ -36,7 +37,7 @@ private:
 	bool manualMode = true;
 	int pressure = 20, fanSpeed = 25;
 	int currentPressure;
-
+	bool error = false;
 	void displayFormat ();
 };
 

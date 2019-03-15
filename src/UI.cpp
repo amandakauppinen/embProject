@@ -28,7 +28,7 @@ void UI::write(std::string s) {
 }
 
 void UI::buttonStatus() {
-	displayFormat();
+	if (!error) displayFormat();
 	//this might be better going into the main
 	if (b1->read()) {
 		//if the device is in manual mode
@@ -153,10 +153,13 @@ int UI::getPressure() {
 
 //leaving this alone for now, we can call it from wherever we are checking the error
 void UI::errorMessage() {
-	screen->setCursor(0,0);
-	screen->print("                ");
+	error = true;
 	screen->setCursor(0,0);
 	screen->print("Error code: 123");
+}
+
+void UI::resetError() {
+	error = false;
 }
 
 UI::~UI() {}

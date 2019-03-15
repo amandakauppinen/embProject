@@ -220,6 +220,7 @@ int main(void) {
 					menu.errorMessage();
 					printf("PIcontroller Error: not able to reach pressure! \n");
 				}
+				else menu.resetError();
 			}
 			else {										//if the system is running in manual mode
 				//no error checking for manual mode
