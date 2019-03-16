@@ -24,7 +24,6 @@ private:
 	uint8_t rxData[3];
 	uint8_t pressureRegister;
 	uint8_t device_number;
-
 	//how to find out the ambient Pressure:
 	// find out height over sea level: https://www.daftlogic.com/sandbox-google-maps-find-altitude.htm
 	// calculate local ambient air pressure: https://rechneronline.de/physik/luftdruck-hoehe.php
