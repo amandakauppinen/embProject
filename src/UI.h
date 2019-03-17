@@ -10,7 +10,6 @@ public:
 	void clearDisplay();
 	void buttonStatus();
 
-	//void setFan(int newSpeed);
 	void setPressure(int newPressure);
 	void setCurrentPressure (int pa);
 
