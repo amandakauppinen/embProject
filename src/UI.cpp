@@ -1,10 +1,5 @@
 #include "UI.h"
 
-
-/*
- * MANUAL = TRUE		AUTO = FALSE
- */
-
 UI::UI(LiquidCrystal *screen, DigitalIoPin *b1, DigitalIoPin *b2, DigitalIoPin *b3) {
 	this->screen = screen;
 	this->b1 = b1; //+
@@ -29,7 +24,6 @@ void UI::write(std::string s) {
 
 void UI::buttonStatus() {
 	if (!error) displayFormat();
-	//this might be better going into the main
 	if (b1->read()) {
 		//if the device is in manual mode
 		if (manualMode == true) {
@@ -70,6 +64,7 @@ void UI::buttonStatus() {
 		}
 		while(b2->read()) {}
 	}
+	//toggles mode
 	else if (b3->read()) {
 		screen->clear();
 		if (manualMode == true) {
@@ -81,10 +76,6 @@ void UI::buttonStatus() {
 		while(b3->read()) {}
 	}
 }
-
-
-/*This section is a mess right now until I can figure out the problem with those random characters
- * it works, but it's too much code and messy*/
 
 void UI::displayFormat () {
 	char buffer[16] = {'\0'};
@@ -129,23 +120,17 @@ void UI::displayFormat () {
 	}
 }
 
-
-//set fan and pressure speeds
-//void UI::setFan(int newSpeed){
-//	this->fanSpeed = newSpeed;
-//	displayFormat();
-//}
 void UI::setPressure(int newPressure) {
 	this->pressure = newPressure;
 }
 
+//updates UI with current pressure from main
 void UI::setCurrentPressure (int pa) {
 	currentPressure = pa;
 	this->displayFormat();
 }
 
-//gets fan and pressure speeds to be displayed
-//needs to be updated to match rest of program
+//when called in main, returns fan and pressure set by user
 int UI::getFan() {
 	return (fanSpeed*200);
 }
@@ -153,13 +138,15 @@ int UI::getPressure() {
 	return pressure;
 }
 
-//leaving this alone for now, we can call it from wherever we are checking the error
+//called in main when pressure is not reached on time
 void UI::errorMessage() {
 	error = true;
 	screen->setCursor(0,0);
 	screen->print("Error code: 1   ");
 }
 
+//used to keep the error message on the screen until pressure
+//is modified or reached
 void UI::resetError() {
 	error = false;
 }
