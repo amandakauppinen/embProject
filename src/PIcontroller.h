@@ -11,7 +11,7 @@
 
 class PIcontroller {
 public:
-	PIcontroller(float KP, float KI, float k, int SysTickRate, int SysTickDivider);
+	PIcontroller(float KP, float KI, float k, unsigned int SysTickRate, int SysTickDivider);
 	virtual ~PIcontroller();
 	void setReading(float CurrentPressure);
 	void setTarget(float TargetPressure);
@@ -20,7 +20,7 @@ public:
 	bool getTimeOut();
 private:
 	float getUnlimitedSpeed();
-	int sysTickRate;
+	unsigned int sysTickRate;
 	int sysTickDivider;
 	float Ki;
 	float Kp;

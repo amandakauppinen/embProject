@@ -12,7 +12,7 @@
 #define timeOut_s 60	//seconds to try to reach the target value before the error-message
 #define timeOutRange 1	//the timeOutCounter gets reseted if the current pressure is in a range +-timeOutRange around the target value
 
-PIcontroller::PIcontroller(float KP, float KI, float k, int SysTickRate, int SysTickDivider) {
+PIcontroller::PIcontroller(float KP, float KI, float k, unsigned int SysTickRate, int SysTickDivider) {
 	Ki = KI;
 	Kp = KP;
 	K = k;
@@ -94,7 +94,7 @@ int PIcontroller::getSpeed(){
 	return (int)speed;
 }
 
-//check if a timeout occured
+//check if a timeout occurred
 bool PIcontroller::getTimeOut(){
 	if (timeOutCounter >= (sysTickRate * timeOut_s)){
 		return true;
